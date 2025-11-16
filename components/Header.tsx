@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import { Search, PenTool, User } from 'lucide-react';
-import { APP_NAME } from '@/lib/constants';
+import { APP_NAME } from '../lib/constants';
 
 export default function Header() {
   const { data: session } = useSession();

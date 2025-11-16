@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Providers } from "@/components/Providers";
-import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
+import { APP_NAME, APP_DESCRIPTION } from "../lib/constants";
 
 // Serif font for headings (matching the design)
 const playfair = Playfair_Display({
