@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -48,16 +47,16 @@ export default function Header() {
               <Search className="w-5 h-5" />
             </Link>
 
-            {/* Write Button */}
-            {session ? (
+            {/* Write Icon - Only show when logged in */}
+            {session && (
               <Link
                 href="/new"
-                className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-[#1a5f3f] transition-colors"
+                aria-label="Write"
+                className="p-2 text-gray-600 hover:text-[#1a5f3f] transition-colors"
               >
-                <PenTool className="w-4 h-4" />
-                <span className="hidden sm:inline font-serif">Write</span>
+                <PenTool className="w-5 h-5" />
               </Link>
-            ) : null}
+            )}
 
             {/* Sign In / User Profile */}
             {session ? (
@@ -81,6 +80,7 @@ export default function Header() {
                     </div>
                   )}
                 </Link>
+                
                 <button
                   onClick={() => signOut()}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors font-serif text-sm"
@@ -111,4 +111,3 @@ export default function Header() {
     </header>
   );
 }
-
