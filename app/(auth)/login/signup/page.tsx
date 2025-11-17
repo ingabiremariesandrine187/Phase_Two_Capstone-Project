@@ -8,7 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { signIn } from 'next-auth/react';
 import { APP_NAME } from '../../../../lib/constants';
-import {authAPI} from '../../../../lib/api'
+
+import { authAPI } from '../../../../lib/api';
 // import { authAPI } from '@/lib/api';
 
 //form validation schema 
@@ -60,7 +61,7 @@ try {
         setError('Account created but sign in failed. Please try logging in.');
         setLoading(false);
       } else {
-        router.push('/');
+        router.push('/login');
         router.refresh();
       }
     } catch (err: any) {

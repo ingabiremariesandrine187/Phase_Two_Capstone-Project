@@ -42,7 +42,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-
+               
           {/* Right Illustration */}
           <div className="hidden lg:block">
             <HeroIllustration />

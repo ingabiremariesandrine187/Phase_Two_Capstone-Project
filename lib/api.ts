@@ -3,7 +3,7 @@ async signup(name: string,email:string,password:string){
     const response = await fetch('/api/auth/signup',{
        method:'POST',
        headers: {
-        'Content-type':'application/json',
+        'Content-Type':'application/json',
        },
        body:JSON.stringify({name,email,password}),
     });
