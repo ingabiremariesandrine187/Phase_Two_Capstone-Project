@@ -1,3 +1,5 @@
+
+ "use client";
 import {useState} from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -6,11 +8,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { signIn } from 'next-auth/react';
 import { APP_NAME } from '../../../../lib/constants';
-import { authAPI } from '@/lib/api';
+// import { authAPI } from '@/lib/api';
 
-//form validation schema
+//form validation schema 
  
-const signupSchema = z
+const signupSchema = z   
     .object({
       name:z.string().min(2, 'Name must be at least 2 characters'),
        email: z.string().email('Please enter a valid email address'),
@@ -38,7 +40,7 @@ const signupSchema = z
   });
 
 const onSubmit = async (data: SignupFormData) => {
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
      
 
@@ -55,14 +57,14 @@ try {
 
       if (result?.error) {
         setError('Account created but sign in failed. Please try logging in.');
-        setIsLoading(false);
+        setLoading(false);
       } else {
         router.push('/');
         router.refresh();
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred. Please try again.');
-      setIsLoading(false);
+      setLoading(false);
     }
   };
   
@@ -232,12 +234,5 @@ try {
       </div>
     </div>
   );
- 
-
-
-
-
-
-
 
   }
