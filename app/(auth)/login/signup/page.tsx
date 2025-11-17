@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { signIn } from 'next-auth/react';
 import { APP_NAME } from '../../../../lib/constants';
+import {authAPI} from '../../../../lib/api'
 // import { authAPI } from '@/lib/api';
 
 //form validation schema 

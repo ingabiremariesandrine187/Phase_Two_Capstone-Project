@@ -1,3 +1,15 @@
+// types/index.ts
+
+import type { Metadata } from "next";
+import { Playfair_Display, Inter } from "next/font/google";
+import "./globals.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { Providers } from "@/components/Providers";
+import { APP_NAME, APP_DESCRIPTION } from "../lib/constants";
+
+// ... your existing User, Post, Tag interfaces ...
+
 export interface User {
   id: string;
   name: string;
@@ -30,53 +42,32 @@ export interface Post {
   readingTime?: number;
 }
 
-export interface Tag {
-  id: string;
-  name: string;
-  slug: string;
-  postsCount?: number;
+// ... your other existing interfaces ...
+
+// ADD THESE NEXT-AUTH TYPE EXTENSIONS AT THE BOTTOM:
+import 'next-auth';
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      avatar?: string;
+    };
+  }
+
+  interface User {
+    id: string;
+    email: string;
+    name: string;
+    avatar?: string;
+  }
 }
 
-export interface Comment {
-  id: string;
-  content: string;
-  author: User;
-  postId: string;
-  parentId?: string;
-  replies?: Comment[];
-  createdAt: string;
-  updatedAt: string;
-  likesCount: number;
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+    avatar?: string;
+  }
 }
-
-export interface Like {
-  id: string;
-  userId: string;
-  postId?: string;
-  commentId?: string;
-  createdAt: string;
-}
-
-export interface Follow {
-  id: string;
-  followerId: string;
-  followingId: string;
-  createdAt: string;
-}
-
-export interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  error?: string;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
