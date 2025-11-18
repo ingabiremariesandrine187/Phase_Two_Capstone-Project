@@ -1,5 +1,4 @@
 // prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -56,6 +55,15 @@ model Session {
   @@map("sessions")
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
 model Post {
   id        String   @id @default(cuid())
   title     String
@@ -69,3 +77,13 @@ model Post {
 
   @@map("posts")
 }
+
+
+
+
+
+
+
+
+
+

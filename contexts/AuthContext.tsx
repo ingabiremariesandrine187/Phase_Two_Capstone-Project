@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-}
+}    
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
