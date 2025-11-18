@@ -16,34 +16,51 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        console.log(' Auth attempt for email:', credentials?.email);
+        
         if (!credentials?.email || !credentials?.password) {
+          console.log(' Missing credentials');
           return null;
         }
+
+        // Normalize email
+        const normalizedEmail = credentials.email.toLowerCase().trim();
+        console.log(' Normalized email:', normalizedEmail);
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email,
+            email: normalizedEmail,
           },
         });
 
+        console.log('👤 User found:', user ? 'Yes' : 'No');
+        
         if (!user) {
+          console.log(' User not found with email:', normalizedEmail);
           return null;
         }
+
+        console.log(' Stored hashed password:', user.password);
+        console.log(' Provided password length:', credentials.password.length);
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
         );
 
+        console.log('✅ Password valid:', isPasswordValid);
+        
         if (!isPasswordValid) {
+          console.log(' Invalid password for user:', normalizedEmail);
           return null;
         }
 
+        console.log(' Authentication successful for:', normalizedEmail);
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          avatar: user.avatar,
+          avatar: user.avatar || undefined,
         };
       },
     }),
@@ -53,7 +70,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
-    signUp: '/login/signup',
   },
   callbacks: {
     async jwt({ token, user }) {

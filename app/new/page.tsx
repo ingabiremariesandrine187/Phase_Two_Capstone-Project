@@ -1,13 +1,13 @@
 // app/new/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Save, Eye, Tag, FileText } from 'lucide-react';
 
 export default function NewPostPage() {
-  const { data: session } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   
   const [title, setTitle] = useState('');
@@ -17,8 +17,14 @@ export default function NewPostPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Redirect if not authenticated
-  if (!session) {
-    router.push('/login');
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
+
+  if (status === 'loading' || status === 'unauthenticated') {
     return null;
   }
 

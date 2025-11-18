@@ -48,7 +48,7 @@ const onSubmit = async (data: SignupFormData) => {
 
 try {
       // Call signup API
-      await authAPI.signup(data.name, data.email, data.password);
+      const signupResponse = await authAPI.signup(data.name, data.email, data.password);
 
       // Automatically sign in after successful signup
       const result = await signIn('credentials', {
@@ -61,7 +61,15 @@ try {
         setError('Account created but sign in failed. Please try logging in.');
         setLoading(false);
       } else {
-        router.push('/login');
+        // Fetch user profile to update session
+        try {
+          await authAPI.getProfile();
+        } catch (profileError) {
+          console.error('Failed to fetch profile:', profileError);
+          // Continue even if profile fetch fails
+        }
+        
+        router.push('/');
         router.refresh();
       }
     } catch (err: any) {
