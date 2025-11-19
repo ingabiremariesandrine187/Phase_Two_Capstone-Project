@@ -6,7 +6,7 @@ import {useState} from 'react'
 import { useSession, signOut } from 'next-auth/react';
 import { Search, PenTool, User } from 'lucide-react';
 import { APP_NAME } from '../lib/constants';
-import SearchBar from '../components/searchBar'; // Import your SearchBar component
+import SearchBar from '../components/searchBar';
 
 export default function Header() {
   const { data: session } = useSession();
@@ -42,7 +42,7 @@ export default function Header() {
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-4">
-              {/* Search Icon - CHANGED TO BUTTON */}
+              {/* Search Icon */}
               <button
                 onClick={() => setIsSearchOpen(true)}
                 aria-label="Search"
@@ -66,23 +66,26 @@ export default function Header() {
               {session ? (
                 <div className="flex items-center space-x-3">
                   <Link
-                    href={`/profile/${session.user?.id || ''}`}
-                    className="p-2 text-gray-600 hover:text-[#1a5f3f] transition-colors"
+                    href="/profile" // Changed to simple /profile route
+                    className="flex items-center space-x-2 p-2 text-gray-600 hover:text-[#1a5f3f] transition-colors group"
                     aria-label="Profile"
                   >
-                    {session.user?.avatar ? (
+                    {session.user?.image ? (
                       <Image
-                        src={session.user.avatar}
+                        src={session.user.image}
                         alt={session.user.name || 'User'}
                         width={32}
                         height={32}
                         className="rounded-full"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-[#1a5f3f] flex items-center justify-center text-white text-sm font-semibold">
+                      <div className="w-8 h-8 rounded-full bg-[#1a5f3f] flex items-center justify-center text-white text-sm font-semibold group-hover:bg-[#155035] transition-colors">
                         {session.user?.name?.charAt(0).toUpperCase() || 'U'}
                       </div>
                     )}
+                    <span className="hidden md:block text-sm font-serif text-gray-700">
+                      {session.user?.name}
+                    </span>
                   </Link>
                   
                   <button
@@ -114,7 +117,7 @@ export default function Header() {
         </nav>
       </header>
 
-      {/* Search Modal - ADD THIS */}
+      {/* Search Modal */}
       {isSearchOpen && (
         <SearchBar 
           isOpen={isSearchOpen}

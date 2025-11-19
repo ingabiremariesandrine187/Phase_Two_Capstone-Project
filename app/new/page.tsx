@@ -1,127 +1,360 @@
-// app/new/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Save, Eye, Tag, FileText } from 'lucide-react';
+import { Save, Eye, Tag, FileText, Upload, Image as ImageIcon } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import Jodit to avoid SSR issues
+const JoditEditor = dynamic(() => import('jodit-react'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-96 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
+      <div className="text-gray-500">Loading editor...</div>
+    </div>
+  )
+});
+
+interface PostData {
+  title: string;
+  content: string;
+  tags: string[];
+  excerpt?: string;
+  coverImage?: string;
+  published: boolean;
+}
 
 export default function NewPostPage() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const router = useRouter();
   
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
+  const [post, setPost] = useState<PostData>({
+    title: '',
+    content: '',
+    tags: [],
+    excerpt: '',
+    coverImage: '',
+    published: false
+  });
   const [newTag, setNewTag] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'loading') return;
     if (status === 'unauthenticated') {
-      router.push('/login');
+      router.push('/auth/signin');
     }
   }, [status, router]);
 
+  // Fixed Jodit editor configuration with proper styling
+  const editorConfig = {
+    readonly: false,
+    placeholder: 'Tell your story...',
+    uploader: {
+      insertImageAsBase64URI: true,
+      imagesExtensions: ['jpg', 'png', 'jpeg', 'gif'],
+    },
+    image: {
+      edit: false,
+      resize: false,
+    },
+    buttons: [
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|',
+      'outdent', 'indent', '|',
+      'font', 'fontsize', 'brush', '|',
+      'image', 'video', '|',
+      'align', '|',
+      'link', '|',
+      'source'
+    ],
+    height: 500,
+    style: {
+      'color': '#000000', // Ensure black text
+      'font-size': '18px',
+      'line-height': '1.6',
+      'font-family': 'Georgia, serif'
+    },
+    controls: {
+      fontsize: {
+        list: ['8', '10', '12', '14', '16', '18', '24', '30', '36', '48']
+      }
+    }
+  };
+
   if (status === 'loading' || status === 'unauthenticated') {
-    return null;
+    return (
+      <div className="min-h-screen bg-[#faf9f6] flex items-center justify-center">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    );
   }
 
   const handleAddTag = () => {
-    if (newTag.trim() && tags.length < 5) {
-      setTags([...tags, newTag.trim()]);
+    if (newTag.trim() && post.tags.length < 5) {
+      setPost({
+        ...post,
+        tags: [...post.tags, newTag.trim()]
+      });
       setNewTag('');
     }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+    setPost({
+      ...post,
+      tags: post.tags.filter(tag => tag !== tagToRemove)
+    });
+  };
+
+  const handleImageUpload = async (file: File) => {
+    setImageUploading(true);
+    try {
+      // Mock upload - replace with actual Cloudinary/backend integration
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Mock response - replace with actual URL from your backend
+      const mockImageUrl = `https://picsum.photos/800/400?random=${Date.now()}`;
+      
+      setPost({
+        ...post,
+        coverImage: mockImageUrl
+      });
+      
+      alert('Cover image uploaded successfully!');
+    } catch (error) {
+      alert('Failed to upload image');
+      console.error('Upload error:', error);
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const handleSaveDraft = async () => {
+    if (!post.title.trim() && !post.content.trim()) {
+      alert('Please add some content before saving');
+      return;
+    }
+
     setIsSaving(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    alert('Draft saved!');
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...post,
+          published: false
+        })
+      });
+
+      if (response.ok) {
+        alert('Draft saved successfully!');
+      } else {
+        throw new Error('Failed to save draft');
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('Failed to save draft');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!post.title.trim() || !post.content.trim()) {
+      alert('Please add a title and content before publishing');
+      return;
+    }
+
+    setIsPublishing(true);
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...post,
+          published: true
+        })
+      });
+
+      if (response.ok) {
+        const publishedPost = await response.json();
+        alert('Post published successfully!');
+        router.push(`/posts/${publishedPost.slug}`); // Redirect to the published post
+      } else {
+        throw new Error('Failed to publish post');
+      }
+    } catch (error) {
+      console.error('Publish error:', error);
+      alert('Failed to publish post');
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const handlePreview = () => {
-    alert('Preview feature coming soon!');
+    // Store the current post data for preview
+    const previewData = {
+      ...post,
+      author: session?.user,
+      createdAt: new Date().toISOString(),
+      id: 'preview'
+    };
+    
+    sessionStorage.setItem('previewData', JSON.stringify(previewData));
+    window.open('/preview', '_blank');
   };
 
   // Calculate stats
-  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
-  const charCount = content.length;
+  const wordCount = post.content.trim() ? post.content.trim().split(/\s+/).length : 0;
+  const charCount = post.content.length;
   const readTime = Math.ceil(wordCount / 200) || 1;
 
   return (
     <div className="min-h-screen bg-[#faf9f6]">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <span className="text-2xl font-serif font-bold text-[#1a5f3f]">
-                Publique
-              </span>
-              <nav className="hidden md:flex ml-8 space-x-6">
-                <button className="text-gray-700 hover:text-[#1a5f3f] font-serif transition-colors">
-                  Home
-                </button>
-                <button className="text-gray-700 hover:text-[#1a5f3f] font-serif transition-colors">
-                  Explore
-                </button>
-              </nav>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handleSaveDraft}
-                disabled={isSaving}
-                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors font-serif"
-              >
-                <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : 'Save Draft'}</span>
-              </button>
-              
-              <button
-                onClick={handlePreview}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-serif"
-              >
-                <Eye className="w-4 h-4" />
-                <span>Preview</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Removed the duplicate header */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Editor - 2/3 width */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Cover Image Upload */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <ImageIcon className="w-4 h-4 text-gray-600" />
+                <h3 className="font-serif font-bold text-gray-800">Cover Image</h3>
+              </div>
+              {post.coverImage ? (
+                <div className="relative">
+                  <img 
+                    src={post.coverImage} 
+                    alt="Cover" 
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <button
+                    onClick={() => setPost({...post, coverImage: ''})}
+                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors w-6 h-6 flex items-center justify-center text-sm"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-600 mb-4">Upload a cover image</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
+                    disabled={imageUploading}
+                    className="hidden"
+                    id="cover-upload"
+                  />
+                  <label
+                    htmlFor="cover-upload"
+                    className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer text-sm ${
+                      imageUploading 
+                        ? 'bg-gray-400 text-white cursor-not-allowed' 
+                        : 'bg-[#1a5f3f] text-white hover:bg-[#155035] hover:shadow-md'
+                    }`}
+                  >
+                    <span>{imageUploading ? 'Uploading...' : 'Choose Image'}</span>
+                  </label>
+                </div>
+              )}
+            </div>
+
             {/* Title Input */}
-            <input
-              type="text"
-              placeholder="Title..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full text-4xl font-serif font-bold text-gray-800 placeholder-gray-400 outline-none bg-transparent mb-8"
-            />
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <input
+                type="text"
+                placeholder="Title..."
+                value={post.title}
+                onChange={(e) => setPost({...post, title: e.target.value})}
+                className="w-full text-4xl font-serif font-bold text-gray-900 placeholder-gray-500 outline-none bg-transparent caret-[#1a5f3f]"
+              />
+            </div>
+
+            {/* Excerpt Input */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <textarea
+                placeholder="Add a brief excerpt (optional)..."
+                value={post.excerpt}
+                onChange={(e) => setPost({...post, excerpt: e.target.value})}
+                className="w-full text-lg text-gray-900 placeholder-gray-500 outline-none bg-transparent resize-none leading-relaxed caret-[#1a5f3f]"
+                rows={2}
+              />
+            </div>
             
-            {/* Content Textarea */}
-            <textarea
-              placeholder="Tell your story..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full h-96 text-lg text-gray-700 placeholder-gray-400 outline-none bg-transparent resize-none leading-relaxed"
-            />
+            {/* Rich Text Editor */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <style jsx global>{`
+                .jodit-wysiwyg {
+                  color: #000000 !important;
+                  font-size: 18px !important;
+                  line-height: 1.6 !important;
+                  font-family: Georgia, serif !important;
+                }
+                .jodit-container .jodit-wysiwyg * {
+                  color: inherit !important;
+                }
+              `}</style>
+              <JoditEditor
+                value={post.content}
+                config={editorConfig}
+                onBlur={(newContent: string) => setPost({...post, content: newContent})}
+                onChange={(newContent: string) => setPost({...post, content: newContent})}
+              />
+            </div>
+
+            {/* Action Buttons - Moved to bottom of editor section */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={handleSaveDraft}
+                    disabled={isSaving || (!post.title.trim() && !post.content.trim())}
+                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-serif text-sm"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{isSaving ? 'Saving...' : 'Save Draft'}</span>
+                  </button>
+                  
+                  <button
+                    onClick={handlePreview}
+                    disabled={!post.content.trim()}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-serif text-sm"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>Preview</span>
+                  </button>
+                </div>
+                
+                <button
+                  onClick={handlePublish}
+                  disabled={isPublishing || !post.title.trim() || !post.content.trim()}
+                  className="flex items-center space-x-2 px-6 py-2 bg-[#1a5f3f] text-white rounded-lg hover:bg-[#155035] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 font-serif text-sm font-medium shadow-sm"
+                >
+                  <span>{isPublishing ? 'Publishing...' : 'Publish'}</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar - 1/3 width */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Publishing Tips */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="font-serif font-bold text-gray-800 mb-4">Publishing Tips</h3>
@@ -152,13 +385,13 @@ export default function NewPostPage() {
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f]"
-                  disabled={tags.length >= 5}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] transition-colors"
+                  disabled={post.tags.length >= 5}
                 />
                 <button
                   onClick={handleAddTag}
-                  disabled={tags.length >= 5 || !newTag.trim()}
-                  className="px-4 py-2 bg-[#1a5f3f] text-white rounded-lg hover:bg-[#155035] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                  disabled={post.tags.length >= 5 || !newTag.trim()}
+                  className="px-4 py-2 bg-[#1a5f3f] text-white rounded-lg hover:bg-[#155035] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium"
                 >
                   Add
                 </button>
@@ -166,15 +399,15 @@ export default function NewPostPage() {
               
               {/* Tags List */}
               <div className="flex flex-wrap gap-2">
-                {tags.map((tag, index) => (
+                {post.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm transition-colors hover:bg-gray-200"
                   >
                     {tag}
                     <button
                       onClick={() => handleRemoveTag(tag)}
-                      className="hover:text-red-500 transition-colors"
+                      className="hover:text-red-500 transition-colors text-lg leading-none w-4 h-4 flex items-center justify-center"
                     >
                       ×
                     </button>
@@ -201,6 +434,10 @@ export default function NewPostPage() {
                 <div>
                   <div className="text-gray-600">Read time:</div>
                   <div className="font-serif font-bold text-gray-800">{readTime} min</div>
+                </div>
+                <div>
+                  <div className="text-gray-600">Tags:</div>
+                  <div className="font-serif font-bold text-gray-800">{post.tags.length}/5</div>
                 </div>
               </div>
             </div>

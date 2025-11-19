@@ -1,4 +1,3 @@
-
 "use client";
 
 import {useState} from 'react';
@@ -9,7 +8,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { APP_NAME } from '@/lib/constants';
-
 
 const loginSchema =z.object({
  email: z.string().email('Please enter a valid email address'),
@@ -22,7 +20,6 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
 
 const {
     register,
@@ -124,8 +121,9 @@ const {
                 type="email"
                 id="email"
                 autoComplete="email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none text-gray-700"
                 placeholder="you@example.com"
+                suppressHydrationWarning
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -147,6 +145,7 @@ const {
                 autoComplete="current-password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
                 placeholder="••••••••"
+                suppressHydrationWarning
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">
@@ -162,6 +161,7 @@ const {
               type="submit"
               disabled={isLoading}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#1a5f3f] hover:bg-[#155035] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1a5f3f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              suppressHydrationWarning
             >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
@@ -190,20 +190,5 @@ const {
         </div>
       </div>
     </div>
-
-
-
-
   )
-
-
-
-
-
-
-
-
-
-
-
 }

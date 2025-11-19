@@ -1,55 +1,66 @@
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
+async function apiRequest(endpoint: string, options: RequestInit = {}) {
+  const url = `${API_BASE_URL}${endpoint}`;
+  
+  const config: RequestInit = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  };
+
+  const response = await fetch(url, config);
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+// Auth API functions
 export const authAPI = {
-async signup(name: string,email:string,password:string){
-    const response = await fetch('/api/auth/signup',{
-       method:'POST',
-       headers: {
-        'Content-Type':'application/json',
-       },
-       body:JSON.stringify({name,email,password}),
+  async signup(name: string, email: string, password: string) {
+    return apiRequest('/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password }),
     });
+  },
 
-    const data = await response.json();
-
-    if(!response.ok){
-        throw new Error (data.error || 'signup failed')
-    }
-
-    return data;
-},
-
-async getProfile() {
-    const response = await fetch('/api/auth/profile', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+  async login(email: string, password: string) {
+    return apiRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
     });
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch profile');
+  async getProfile(token?: string) {
+    const headers: HeadersInit = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
-
-    return data;
-},
-
-async updateProfile(name?: string, avatar?: string) {
-    const response = await fetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, avatar }),
+    
+    return apiRequest('/auth/profile', {
+      method: 'GET',
+      headers,
     });
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.error || 'Failed to update profile');
+  async updateProfile(data: { name?: string; bio?: string; avatar?: string }, token?: string) {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
     }
-
-    return data;
-},
-
+    
+    return apiRequest('/auth/profile', {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(data),
+    });
+  },
 };

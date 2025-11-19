@@ -110,7 +110,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         try {
           if (!credentials?.email || !credentials?.password) {
             throw new Error('Email and password are required');
@@ -143,7 +143,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             email: user.email,
             name: user.name,
-            avatar: user.avatar || null,
+            avatar: user.avatar || undefined,
           };
         } catch (error) {
           console.error('Auth error:', error);
@@ -158,7 +158,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
-    signUp: '/login/signup',
   },
   callbacks: {
     async jwt({ token, user }) {

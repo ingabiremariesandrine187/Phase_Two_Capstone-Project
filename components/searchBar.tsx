@@ -130,7 +130,7 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search articles, authors, tags..."
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" // ← ONLY THIS LINE CHANGED
             autoFocus
           />
           {isLoading && (
@@ -204,7 +204,7 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
       {/* Popular Tags */}
       {!query && (
         <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-4">Popular Tags</h3>
+          <h3 className="text-lg font-semibold mb-4 text-gray-700">Popular Tags</h3>
           <div className="flex flex-wrap gap-2">
             {['Next.js', 'React', 'TypeScript', 'Web Development', 'Programming', 'JavaScript', 'CSS', 'Frontend'].map((tag) => (
               <button

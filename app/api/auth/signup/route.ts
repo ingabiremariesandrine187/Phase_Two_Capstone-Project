@@ -1,147 +1,69 @@
-
-// // app/api/auth/signup/route.ts
-
-// import { NextRequest, NextResponse } from 'next/server';
-// import bcrypt from 'bcryptjs';
-// import { prisma } from '@/lib/prisma';
-
-// export async function POST(request: NextRequest) {
-//   try {
-//     const { name, email, password } = await request.json();
-
-//     // Validate required fields
-//     if (!name || !email || !password) {
-//       return NextResponse.json(
-//         { error: 'Name, email, and password are required' },
-//         { status: 400 }
-//       );
-//     }
-
-//     // Check if user already exists
-//     const existingUser = await prisma.user.findUnique({
-//       where: { email },
-//     });
-
-//     if (existingUser) {
-//       return NextResponse.json(
-//         { error: 'User with this email already exists' },
-//         { status: 400 }
-//       );
-//     }
-
-//     // Hash password
-//     const hashedPassword = await bcrypt.hash(password, 12);
-
-//     // Create user
-//     const user = await prisma.user.create({
-//       data: {
-//         name,
-//         email,
-//         password: hashedPassword,
-//       },
-//     });
-
-//     // Return user without password
-//     const { password: _, ...userWithoutPassword } = user;
-
-//     return NextResponse.json(
-//       { message: 'User created successfully', user: userWithoutPassword },
-//       { status: 201 }
-//     );
-//   } catch (error) {
-//     console.error('Signup error:', error);
-//     return NextResponse.json(
-//       { error: 'Internal server error' },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
-// app/api/auth/signup/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
+import connectDB from '@/lib/mongodb';
+import { User } from '../../../../models/users'; // ✅ Fixed import
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json();
+    console.log('🔸 Starting signup process...');
+    
+    await connectDB();
+    console.log('✅ Database connected successfully');
 
-    // Validate required fields
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { error: 'Name, email, and password are required' },
-        { status: 400 }
-      );
-    }
+    const body = await request.json();
+    console.log('🔸 Request body:', body);
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Please provide a valid email address' },
-        { status: 400 }
-      );
-    }
-
-    // Validate password length
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: 'Password must be at least 6 characters long' },
-        { status: 400 }
-      );
-    }
-
-    // Normalize email
-    const normalizedEmail = email.toLowerCase().trim();
+    const { name, email, password } = body;
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
+    console.log('🔸 Checking for existing user...');
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('❌ User already exists:', email);
       return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 409 }
+        { error: 'User already exists with this email' },
+        { status: 400 }
       );
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        name: name.trim(),
-        email: normalizedEmail,
-        password: hashedPassword,
-      },
+    // Create new user
+    console.log('🔸 Creating new user...');
+    const user = await User.create({
+      name,
+      email,
+      password,
     });
 
-    // Return user without password
-    const { password: _, ...userWithoutPassword } = user;
+    console.log('✅ User created successfully:', user.email);
 
     return NextResponse.json(
       { 
-        message: 'User created successfully', 
-        user: userWithoutPassword 
+        message: 'User created successfully',
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          bio: user.bio,
+        }
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error('Signup error:', error);
+  } catch (error: any) {
+    console.error('❌ SIGNUP ERROR:');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((err: any) => err.message);
+      return NextResponse.json(
+        { error: errors.join(', ') },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error: ' + error.message },
       { status: 500 }
     );
   }
 }
-
-
-
-
-
-
-
-

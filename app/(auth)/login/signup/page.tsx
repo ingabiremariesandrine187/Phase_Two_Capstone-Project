@@ -1,5 +1,4 @@
-
- "use client";
+"use client";
 import {useState} from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -8,12 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { signIn } from 'next-auth/react';
 import { APP_NAME } from '../../../../lib/constants';
-
 import { authAPI } from '../../../../lib/api';
-// import { authAPI } from '@/lib/api';
 
 //form validation schema 
- 
 const signupSchema = z   
     .object({
       name:z.string().min(2, 'Name must be at least 2 characters'),
@@ -143,8 +139,9 @@ try {
                 type="text"
                 id="name"
                 autoComplete="name"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none text-gray-700"
                 placeholder="John Doe"
+                suppressHydrationWarning
               />
               {errors.name && (
                 <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -164,8 +161,9 @@ try {
                 type="email"
                 id="email"
                 autoComplete="email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none text-gray-700"
                 placeholder="you@example.com"
+                suppressHydrationWarning
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -185,8 +183,9 @@ try {
                 type="password"
                 id="password"
                 autoComplete="new-password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none text-gray-700"
                 placeholder="••••••••"
+                suppressHydrationWarning
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">
@@ -208,8 +207,9 @@ try {
                 type="password"
                 id="confirmPassword"
                 autoComplete="new-password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none text-gray-700"
                 placeholder="••••••••"
+                suppressHydrationWarning
               />
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-600">
@@ -225,6 +225,7 @@ try {
               type="submit"
               disabled={isLoading}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#1a5f3f] hover:bg-[#155035] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1a5f3f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              suppressHydrationWarning
             >
               {isLoading ? 'Creating account...' : 'Sign Up'}
             </button>
@@ -244,5 +245,4 @@ try {
       </div>
     </div>
   );
-
-  }
+}
