@@ -1,37 +1,70 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
+  
+  console.log('[API] Request:', options.method || 'GET', url);
   
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
     },
+    credentials: 'include', // Add this for session cookies
     ...options,
   };
 
-  const response = await fetch(url, config);
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-  }
+  try {
+    const response = await fetch(url, config);
+    
+    console.log('[API] Response:', response.status, response.statusText);
+    
+    if (!response.ok) {
+      let errorData;
+      let errorText = '';
+      
+      try {
+        errorData = await response.json();
+        errorText = JSON.stringify(errorData);
+      } catch {
+        try {
+          errorText = await response.text();
+          errorData = { error: errorText || `HTTP error! status: ${response.status}` };
+        } catch {
+          errorData = { error: `HTTP error! status: ${response.status}` };
+        }
+      }
+      
+      // Simplified error logging - log each property separately
+      console.error('[API] Error Status:', response.status);
+      console.error('[API] Error Status Text:', response.statusText);
+      console.error('[API] Error URL:', url);
+      console.error('[API] Error Data:', errorData);
+      
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
 
-  return response.json();
+    return response.json();
+  } catch (error: any) {
+    console.error('[API] Network Error URL:', url);
+    console.error('[API] Network Error Message:', error.message);
+    console.error('[API] Network Error Type:', error.name);
+    
+    throw new Error(`Network error: ${error.message}`);
+  }
 }
 
 // Auth API functions
 export const authAPI = {
   async signup(name: string, email: string, password: string) {
-    return apiRequest('/auth/signup', {
+    return apiRequest('/api/auth/signup', { // Changed from /auth/signup to /api/auth/signup
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
     });
   },
 
   async login(email: string, password: string) {
-    return apiRequest('/auth/login', {
+    return apiRequest('/api/auth/login', { // Changed from /auth/login to /api/auth/login
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -43,7 +76,7 @@ export const authAPI = {
       headers.Authorization = `Bearer ${token}`;
     }
     
-    return apiRequest('/auth/profile', {
+    return apiRequest('/api/auth/profile', { // Changed from /auth/profile to /api/auth/profile
       method: 'GET',
       headers,
     });
@@ -57,7 +90,7 @@ export const authAPI = {
       headers.Authorization = `Bearer ${token}`;
     }
     
-    return apiRequest('/auth/profile', {
+    return apiRequest('/api/auth/profile', { // Changed from /auth/profile to /api/auth/profile
       method: 'PUT',
       headers,
       body: JSON.stringify(data),
@@ -76,7 +109,7 @@ export const postsAPI = {
     tags: string[];
     published: boolean;
   }) {
-    return apiRequest('/api/posts', {
+    return apiRequest('/api/posts', { // This is correct
       method: 'POST',
       body: JSON.stringify(postData),
     });
@@ -97,12 +130,12 @@ export const postsAPI = {
     if (options?.author) params.append('author', options.author);
     if (options?.published !== undefined) params.append('published', options.published.toString());
 
-    return apiRequest(`/api/posts?${params.toString()}`);
+    return apiRequest(`/api/posts?${params.toString()}`); // This is correct
   },
 
   // Get single post by slug
   async getPost(slug: string) {
-    return apiRequest(`/api/posts/${slug}`);
+    return apiRequest(`/api/posts/${slug}`); // This is correct
   },
 
   // Get current user's posts
@@ -110,7 +143,7 @@ export const postsAPI = {
     const params = new URLSearchParams();
     if (published !== undefined) params.append('published', published.toString());
     
-    return apiRequest(`/api/posts/user?${params.toString()}`);
+    return apiRequest(`/api/posts/user?${params.toString()}`); // This is correct
   },
 };
 
@@ -120,16 +153,43 @@ export const uploadAPI = {
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
+    const url = '/api/upload'; // This is correct
+    console.log('[Upload] API Request: POST', url);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
-      throw new Error(errorData.error || 'Upload failed');
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include', // Add this for session cookies
+      });
+
+      console.log('[Upload] API Response:', response.status, response.statusText);
+
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          try {
+            const errorText = await response.text();
+            errorData = { error: errorText || `Upload failed! status: ${response.status}` };
+          } catch {
+            errorData = { error: `Upload failed! status: ${response.status}` };
+          }
+        }
+        
+        console.error('[Upload] Error Status:', response.status);
+        console.error('[Upload] Error Status Text:', response.statusText);
+        console.error('[Upload] Error Data:', errorData);
+        
+        throw new Error(errorData.error || `Upload failed! status: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      console.error('[Upload] Network Error:', error.message);
+      
+      throw new Error(`Upload network error: ${error.message}`);
     }
-
-    return response.json();
   },
 };
