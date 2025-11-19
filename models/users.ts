@@ -73,4 +73,16 @@ userSchema.methods.toJSON = function () {
   return user;
 };
 
+
+// Add this to your existing User model
+userSchema.virtual('posts', {
+  ref: 'Post',
+  localField: '_id',
+  foreignField: 'author',
+});
+
+// Ensure virtual fields are serialized
+userSchema.set('toJSON', { virtuals: true });
+userSchema.set('toObject', { virtuals: true });
+
 export const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
