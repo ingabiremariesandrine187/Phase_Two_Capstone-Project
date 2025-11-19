@@ -64,3 +64,72 @@ export const authAPI = {
     });
   },
 };
+
+// Posts API functions
+export const postsAPI = {
+  // Create new post
+  async createPost(postData: {
+    title: string;
+    content: string;
+    excerpt?: string;
+    coverImage?: string;
+    tags: string[];
+    published: boolean;
+  }) {
+    return apiRequest('/api/posts', {
+      method: 'POST',
+      body: JSON.stringify(postData),
+    });
+  },
+
+  // Get posts with pagination and filters
+  async getPosts(options?: {
+    page?: number;
+    limit?: number;
+    tag?: string;
+    author?: string;
+    published?: boolean;
+  }) {
+    const params = new URLSearchParams();
+    if (options?.page) params.append('page', options.page.toString());
+    if (options?.limit) params.append('limit', options.limit.toString());
+    if (options?.tag) params.append('tag', options.tag);
+    if (options?.author) params.append('author', options.author);
+    if (options?.published !== undefined) params.append('published', options.published.toString());
+
+    return apiRequest(`/api/posts?${params.toString()}`);
+  },
+
+  // Get single post by slug
+  async getPost(slug: string) {
+    return apiRequest(`/api/posts/${slug}`);
+  },
+
+  // Get current user's posts
+  async getUserPosts(published?: boolean) {
+    const params = new URLSearchParams();
+    if (published !== undefined) params.append('published', published.toString());
+    
+    return apiRequest(`/api/posts/user?${params.toString()}`);
+  },
+};
+
+export const uploadAPI = {
+  // Upload image
+  async uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(errorData.error || 'Upload failed');
+    }
+
+    return response.json();
+  },
+};

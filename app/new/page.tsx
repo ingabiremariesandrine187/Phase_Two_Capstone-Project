@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Save, Eye, Tag, FileText, Upload, Image as ImageIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { postsAPI, uploadAPI } from '../../lib/api'; 
 
 // Dynamically import Jodit to avoid SSR issues
 const JoditEditor = dynamic(() => import('jodit-react'), {
@@ -46,7 +47,7 @@ export default function NewPostPage() {
   useEffect(() => {
     if (status === 'loading') return;
     if (status === 'unauthenticated') {
-      router.push('/auth/signin');
+      router.push('/login');
     }
   }, [status, router]);
 
@@ -111,33 +112,27 @@ export default function NewPostPage() {
     });
   };
 
+  // ✅ UPDATED: Image upload using real API
   const handleImageUpload = async (file: File) => {
     setImageUploading(true);
     try {
-      // Mock upload - replace with actual Cloudinary/backend integration
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock response - replace with actual URL from your backend
-      const mockImageUrl = `https://picsum.photos/800/400?random=${Date.now()}`;
+      const response = await uploadAPI.uploadImage(file);
       
       setPost({
         ...post,
-        coverImage: mockImageUrl
+        coverImage: response.imageUrl
       });
       
       alert('Cover image uploaded successfully!');
-    } catch (error) {
-      alert('Failed to upload image');
+    } catch (error: any) {
+      alert(error.message || 'Failed to upload image');
       console.error('Upload error:', error);
     } finally {
       setImageUploading(false);
     }
   };
 
+  // ✅ UPDATED: Save draft using real API
   const handleSaveDraft = async () => {
     if (!post.title.trim() && !post.content.trim()) {
       alert('Please add some content before saving');
@@ -146,30 +141,30 @@ export default function NewPostPage() {
 
     setIsSaving(true);
     try {
-      const response = await fetch('/api/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...post,
-          published: false
-        })
+      const response = await postsAPI.createPost({
+        title: post.title,
+        content: post.content,
+        excerpt: post.excerpt,
+        coverImage: post.coverImage,
+        tags: post.tags,
+        published: false // false for draft
       });
 
-      if (response.ok) {
+      if (response.success) {
         alert('Draft saved successfully!');
+        // Optionally redirect to drafts page or reset form
       } else {
-        throw new Error('Failed to save draft');
+        throw new Error(response.error || 'Failed to save draft');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Save error:', error);
-      alert('Failed to save draft');
+      alert(error.message || 'Failed to save draft');
     } finally {
       setIsSaving(false);
     }
   };
 
+  // ✅ UPDATED: Publish using real API
   const handlePublish = async () => {
     if (!post.title.trim() || !post.content.trim()) {
       alert('Please add a title and content before publishing');
@@ -178,27 +173,24 @@ export default function NewPostPage() {
 
     setIsPublishing(true);
     try {
-      const response = await fetch('/api/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...post,
-          published: true
-        })
+      const response = await postsAPI.createPost({
+        title: post.title,
+        content: post.content,
+        excerpt: post.excerpt,
+        coverImage: post.coverImage,
+        tags: post.tags,
+        published: true // true for publish
       });
 
-      if (response.ok) {
-        const publishedPost = await response.json();
+      if (response.success) {
         alert('Post published successfully!');
-        router.push(`/posts/${publishedPost.slug}`); // Redirect to the published post
+        router.push(`/posts/${response.post.slug}`);
       } else {
-        throw new Error('Failed to publish post');
+        throw new Error(response.error || 'Failed to publish post');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Publish error:', error);
-      alert('Failed to publish post');
+      alert(error.message || 'Failed to publish post');
     } finally {
       setIsPublishing(false);
     }
@@ -224,8 +216,6 @@ export default function NewPostPage() {
 
   return (
     <div className="min-h-screen bg-[#faf9f6]">
-      {/* Removed the duplicate header */}
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Editor - 2/3 width */}
