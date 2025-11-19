@@ -46,7 +46,7 @@ export default function ProfilePage() {
     postsPublished: 0,
     postsDrafted: 3,
     totalLikes: 24,
-    memberSince: '2024'
+    memberSince: '2025'
   });
 
   const {
@@ -71,9 +71,9 @@ export default function ProfilePage() {
   useEffect(() => {
     if (session?.user) {
       setValue('name', session.user.name || '');
-      setValue('bio', session.user.bio || '');
-      setValue('website', session.user.website || '');
-      setValue('location', session.user.location || '');
+      setValue('bio', (session.user as any).bio || '');
+      setValue('website', (session.user as any).website || '');
+      setValue('location', (session.user as any).location || '');
     }
   }, [session, setValue]);
 
@@ -111,9 +111,9 @@ export default function ProfilePage() {
     // Reset form values
     if (session?.user) {
       setValue('name', session.user.name || '');
-      setValue('bio', session.user.bio || '');
-      setValue('website', session.user.website || '');
-      setValue('location', session.user.location || '');
+      setValue('bio', (session.user as any).bio || '');
+      setValue('website', (session.user as any).website || '');
+      setValue('location', (session.user as any).location || '');
     }
     setMessage('');
   };
@@ -127,6 +127,11 @@ export default function ProfilePage() {
   }
 
   const user = session?.user;
+
+  // Safe access to extended user properties
+  const userBio = (user as any)?.bio || "Passionate writer sharing thoughts and stories with the world. Love exploring new ideas and connecting with readers.";
+  const userWebsite = (user as any)?.website || '';
+  const userLocation = (user as any)?.location || '';
 
   return (
     <div className="min-h-screen bg-[#faf9f6] py-8">
@@ -230,6 +235,7 @@ export default function ProfilePage() {
                     rows={3}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none resize-none"
                     placeholder="Tell your story..."
+                    defaultValue={userBio}
                   />
                   <div className="flex justify-between text-sm text-gray-500 mt-1">
                     <span>Share what makes you unique</span>
@@ -241,36 +247,59 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <p className="text-gray-700 text-lg leading-relaxed">
-                  {user?.bio || "This user hasn't written a bio yet."}
+                  {userBio}
                 </p>
               )}
             </div>
 
-            {/* Additional Info */}
-            {isEditing && (
+            {/* Additional Info - Show only if exists or in edit mode */}
+            {(userWebsite || userLocation || isEditing) && (
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Website
-                  </label>
-                  <input
-                    {...register('website')}
-                    type="url"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
-                    placeholder="https://example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Location
-                  </label>
-                  <input
-                    {...register('location')}
-                    type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
-                    placeholder="Your city, country"
-                  />
-                </div>
+                {isEditing ? (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Website
+                      </label>
+                      <input
+                        {...register('website')}
+                        type="url"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
+                        placeholder="https://example.com"
+                        defaultValue={userWebsite}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Location
+                      </label>
+                      <input
+                        {...register('location')}
+                        type="text"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none"
+                        placeholder="Your city, country"
+                        defaultValue={userLocation}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {userWebsite && (
+                      <div className="flex items-center space-x-2 text-gray-600">
+                        <span className="font-medium">Website:</span>
+                        <a href={userWebsite} target="_blank" rel="noopener noreferrer" className="text-[#1a5f3f] hover:underline">
+                          {userWebsite}
+                        </a>
+                      </div>
+                    )}
+                    {userLocation && (
+                      <div className="flex items-center space-x-2 text-gray-600">
+                        <span className="font-medium">Location:</span>
+                        <span>{userLocation}</span>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>
