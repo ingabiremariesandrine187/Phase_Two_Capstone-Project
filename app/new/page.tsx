@@ -141,6 +141,11 @@ export default function NewPostPage() {
 
     setIsSaving(true);
     try {
+      const userId = (session?.user as any)?.id;
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
       const response = await postsAPI.createPost({
         title: post.title,
         content: post.content,
@@ -148,7 +153,7 @@ export default function NewPostPage() {
         coverImage: post.coverImage,
         tags: post.tags,
         published: false // false for draft
-      });
+      }, userId);
 
       if (response.success) {
         alert('Draft saved successfully!');
@@ -173,6 +178,11 @@ export default function NewPostPage() {
 
     setIsPublishing(true);
     try {
+      const userId = (session?.user as any)?.id;
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
       const response = await postsAPI.createPost({
         title: post.title,
         content: post.content,
@@ -180,7 +190,7 @@ export default function NewPostPage() {
         coverImage: post.coverImage,
         tags: post.tags,
         published: true // true for publish
-      });
+      }, userId);
 
       if (response.success) {
         alert('Post published successfully!');
