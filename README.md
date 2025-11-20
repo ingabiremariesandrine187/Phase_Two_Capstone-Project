@@ -1,4 +1,6 @@
+Overview
 
+<<<<<<< HEAD
 
  A production-ready publishing platform inspired by Medium, built with **Next.js 16**, **React 19**, **TypeScript**, and **MongoDB**. Demonstrates advanced frontend engineering, authentication, rich content creation, social interactions, and deployment best practices.
 
@@ -22,6 +24,26 @@ This project is a **Phase 2 Capstone** demonstrating full-stack frontend enginee
 
 ##  Key Features
 
+=======
+This project is the Phase 2 Frontend Capstone Readiness Project, demonstrating strong frontend engineering principles using React, Next.js, TypeScript, and modern tooling.
+It simulates a complete publishing workflow where users can:
+
+Create and publish posts
+
+Write rich-text content
+
+
+Manage their profiles
+
+Interact with posts (comments, likes/claps)
+
+Follow other authors
+
+Search, filter, and browse content efficiently
+
+Features
+ Authentication & Profiles
+>>>>>>> 5b89bcd (adding ReadMe)
 
 Signup & Login (NextAuth or custom JWT flow)
 
@@ -35,6 +57,10 @@ WYSIWYG editor (Jodit or Markdown)
 
 Styling tools: bold, italic, code, lists, headers
 
+<<<<<<< HEAD
+=======
+Image upload with Cloudinary or mock storage
+>>>>>>> 5b89bcd (adding ReadMe)
 
 Draft saving & preview mode
 
