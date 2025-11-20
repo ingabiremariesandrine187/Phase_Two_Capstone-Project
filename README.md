@@ -1,41 +1,104 @@
+Overview
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This project is the Phase 2 Frontend Capstone Readiness Project, demonstrating strong frontend engineering principles using React, Next.js, TypeScript, and modern tooling.
+It simulates a complete publishing workflow where users can:
 
-## Getting Started
+Create and publish posts
 
-First, run the development server:
+Write rich-text content
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Manage their profiles
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Interact with posts (comments, likes/claps)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Follow other authors
 
-## Learn More
+Search, filter, and browse content efficiently
 
-To learn more about Next.js, take a look at the following resources:
+Features
+ Authentication & Profiles
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Signup & Login (NextAuth or custom JWT flow)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Protected routes (client + server)
 
-## Deploy on Vercel
+User profile: avatar, bio, authored posts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+ Rich Content Editor
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# Phase_Two_Capstone-Project
-A full-featured publishing platform inspired by Medium, built with Next.js and React. Includes authentication, rich text editing, posts CRUD, comments, likes, SEO optimization, TypeScript, and deployment to Vercel.
+WYSIWYG editor (Jodit or Markdown)
 
+Styling tools: bold, italic, code, lists, headers
+
+Image upload with Cloudinary or mock storage
+
+Draft saving & preview mode
+
+ Posts Management (CRUD)
+
+Create, read, update, delete posts
+
+Draft and published states
+
+SEO-friendly slugs
+
+Optimized images using next/image
+
+🏷 Tags, Feeds & Search
+
+Homepage feed with pagination/infinite scroll
+
+Tag filtering
+
+Debounced search
+
+Recommended posts section
+
+ Social Interactions
+
+Comments (nested or flat)
+
+Claps/Likes with optimistic updates
+
+Follow authors + personalized feed
+
+ Data Fetching & State
+
+React Query / SWR caching
+
+Global state with Context API
+
+Error + loading UI states
+
+🛠 Developer Experience
+
+TypeScript end-to-end
+
+ESLint + Prettier + Husky
+
+Jest + React Testing Library
+
+Clean folder structure using App Router
+
+Category	Tools
+Framework	Next.js (App Router)
+Language	TypeScript
+Styling	Tailwind or CSS Modules
+Auth	NextAuth / JWT
+Editor	Jodit / Markdown editor
+Data Fetching	React Query / SWR
+
+
+
+Learning Outcomes Achieved
+
+This project demonstrates:
+
+ Designing and structuring a scalable Next.js frontend
+ Implementing full authentication flows
+ Building a rich-text editor with image uploads
+ Implementing CRUD functionality
+ Managing server data with React Query/SWR
+ Creating social engagement features
+ Applying TypeScript across the entire codebas
