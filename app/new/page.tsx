@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Save, Eye, Tag, FileText, Upload, Image as ImageIcon } from 'lucide-react';
+import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 import { postsAPI, uploadAPI } from '../../lib/api'; 
 
@@ -123,9 +124,9 @@ export default function NewPostPage() {
         coverImage: response.imageUrl
       });
       
-      alert('Cover image uploaded successfully!');
+      toast.success('Cover image uploaded successfully!');
     } catch (error: any) {
-      alert(error.message || 'Failed to upload image');
+      toast.error(error.message || 'Failed to upload image');
       console.error('Upload error:', error);
     } finally {
       setImageUploading(false);
@@ -135,7 +136,7 @@ export default function NewPostPage() {
   // ✅ UPDATED: Save draft using real API
   const handleSaveDraft = async () => {
     if (!post.title.trim() && !post.content.trim()) {
-      alert('Please add some content before saving');
+      toast.error('Please add some content before saving');
       return;
     }
 
@@ -156,14 +157,14 @@ export default function NewPostPage() {
       }, userId);
 
       if (response.success) {
-        alert('Draft saved successfully!');
+        toast.success('Draft saved successfully!');
         // Optionally redirect to drafts page or reset form
       } else {
         throw new Error(response.error || 'Failed to save draft');
       }
     } catch (error: any) {
       console.error('Save error:', error);
-      alert(error.message || 'Failed to save draft');
+      toast.error(error.message || 'Failed to save draft');
     } finally {
       setIsSaving(false);
     }
@@ -172,7 +173,7 @@ export default function NewPostPage() {
   // ✅ UPDATED: Publish using real API
   const handlePublish = async () => {
     if (!post.title.trim() || !post.content.trim()) {
-      alert('Please add a title and content before publishing');
+      toast.error('Please add a title and content before publishing');
       return;
     }
 
@@ -193,14 +194,14 @@ export default function NewPostPage() {
       }, userId);
 
       if (response.success) {
-        alert('Post published successfully!');
+        toast.success('Post published successfully!');
         router.push(`/posts/${response.post.slug}`);
       } else {
         throw new Error(response.error || 'Failed to publish post');
       }
     } catch (error: any) {
       console.error('Publish error:', error);
-      alert(error.message || 'Failed to publish post');
+      toast.error(error.message || 'Failed to publish post');
     } finally {
       setIsPublishing(false);
     }
