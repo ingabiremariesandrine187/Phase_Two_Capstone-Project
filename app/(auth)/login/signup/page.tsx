@@ -113,7 +113,7 @@ export default function ProfilePage() {
       console.log('🔄 Fetching user posts...', { userId });
       
       if (!userId) {
-        console.error('❌ No user ID available');
+        console.error(' No user ID available');
         setPostsError('User not authenticated');
         return;
       }
@@ -154,7 +154,7 @@ export default function ProfilePage() {
           draftPosts = allPosts.filter((post: Post) => !post.published);
         }
       } catch (alternativeError) {
-        console.error('❌ Alternative approach failed:', alternativeError);
+        console.error(' Alternative approach failed:', alternativeError);
         
         // Final fallback - empty arrays
         publishedPosts = [];
@@ -180,7 +180,7 @@ export default function ProfilePage() {
       });
 
     } catch (err: any) {
-      console.error('❌ Failed to fetch user posts:', err);
+      console.error(' Failed to fetch user posts:', err);
       const errorMessage = err?.response?.data?.message || err?.message || 'Failed to load posts. Please try again.';
       setPostsError(errorMessage);
     } finally {
@@ -196,7 +196,7 @@ export default function ProfilePage() {
 
     try {
       setPostsError('');
-      console.log('🗑️ Deleting post:', { postId, userId });
+      console.log(' Deleting post:', { postId, userId });
       
       // Check if userId is available
       if (!userId) {
@@ -223,7 +223,7 @@ export default function ProfilePage() {
         };
       });
 
-      console.log('✅ Post deleted successfully');
+      console.log(' Post deleted successfully');
       
     } catch (err: any) {
       console.error('❌ Failed to delete post:', err);
@@ -265,10 +265,10 @@ export default function ProfilePage() {
         postsDrafted: !newPublishStatus ? prev.postsDrafted + 1 : prev.postsDrafted - 1
       }));
 
-      console.log('✅ Publish status updated:', newPublishStatus);
+      console.log(' Publish status updated:', newPublishStatus);
       
     } catch (err: any) {
-      console.error('❌ Failed to update post:', err);
+      console.error(' Failed to update post:', err);
       const errorMessage = err?.response?.data?.message || err?.message || 'Failed to update post. Please try again.';
       setPostsError(errorMessage);
     }
