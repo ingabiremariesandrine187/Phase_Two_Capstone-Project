@@ -94,15 +94,14 @@
 
 
 
-// lib/auth.ts - Fix the auth configuration
+// lib/auth.ts - MongoDB-based auth configuration
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
-import { prisma } from './prisma';
+import connectDB from './mongodb';
+import { User } from '../models/users';
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -110,8 +109,10 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         try {
+          await connectDB();
+          
           if (!credentials?.email || !credentials?.password) {
             throw new Error('Email and password are required');
           }
@@ -119,10 +120,8 @@ export const authOptions: NextAuthOptions = {
           // Normalize email
           const normalizedEmail = credentials.email.toLowerCase().trim();
 
-          // Find user
-          const user = await prisma.user.findUnique({
-            where: { email: normalizedEmail },
-          });
+          // Find user in MongoDB
+          const user = await User.findOne({ email: normalizedEmail });
 
           if (!user) {
             throw new Error('No user found with this email');
@@ -140,7 +139,7 @@ export const authOptions: NextAuthOptions = {
 
           // Return user object (without password)
           return {
-            id: user.id,
+            id: user._id.toString(),
             email: user.email,
             name: user.name,
             avatar: user.avatar || undefined,

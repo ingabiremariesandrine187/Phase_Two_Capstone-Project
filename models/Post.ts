@@ -49,7 +49,7 @@ const postSchema = new Schema<IPost>(
     },
     slug: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
     },
     published: {

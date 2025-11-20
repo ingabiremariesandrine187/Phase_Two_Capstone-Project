@@ -108,10 +108,23 @@ export const postsAPI = {
     coverImage?: string;
     tags: string[];
     published: boolean;
-  }) {
-    return apiRequest('/api/posts', { // This is correct
+  }, userId?: string) {
+    // If userId is not provided, try to get it from session
+    let finalUserId = userId;
+    if (!finalUserId) {
+      try {
+        const { useSession } = await import('next-auth/react');
+        // Note: This won't work from within a server-side context
+        // The userId must be passed from the client component
+        console.warn('[Posts API] userId not provided to createPost');
+      } catch (e) {
+        // Silently fail - userId should be provided
+      }
+    }
+
+    return apiRequest('/api/posts', { 
       method: 'POST',
-      body: JSON.stringify(postData),
+      body: JSON.stringify({ ...postData, userId: finalUserId }),
     });
   },
 
