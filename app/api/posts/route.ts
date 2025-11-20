@@ -1,3 +1,6 @@
+// 
+
+
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { Post } from '@/models/Post';
@@ -25,7 +28,7 @@ export async function GET(request: NextRequest) {
     if (authorId) query.author = authorId;
 
     const posts = await Post.find(query)
-      .populate('author', 'name email avatar')
+      .populate('author', 'name email avatar bio')
       .sort({ publishedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -52,14 +55,10 @@ export async function GET(request: NextRequest) {
 // POST /api/posts - Create new post (requires auth)
 export async function POST(request: NextRequest) {
   try {
-    // Try to get the user ID from the request body (passed by the client who knows who they are)
     const body = await request.json();
     const { userId, title, content, excerpt, coverImage, tags, published } = body;
 
-    // For now, require userId in body (client must know their user ID after login)
-    // TODO: Implement proper session verification after login flow is updated
     if (!userId) {
-      console.log('[Posts POST] Unauthorized - no userId provided');
       return NextResponse.json({ success: false, error: 'Unauthorized - userId required' }, { status: 401 });
     }
 
@@ -84,7 +83,7 @@ export async function POST(request: NextRequest) {
       published: published || false,
     });
 
-    await post.populate('author', 'name email avatar');
+    await post.populate('author', 'name email avatar bio');
 
     return NextResponse.json(
       {
@@ -122,5 +121,103 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: false, error: 'Failed to create post' }, { status: 500 });
+  }
+}
+
+// PUT /api/posts - Update post (requires auth)
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { postId, userId, title, content, excerpt, coverImage, tags, published } = body;
+
+    if (!userId || !postId) {
+      return NextResponse.json({ success: false, error: 'Unauthorized - userId and postId required' }, { status: 401 });
+    }
+
+    await connectDB();
+
+    const post = await Post.findOne({ _id: postId, author: userId });
+    if (!post) {
+      return NextResponse.json({ success: false, error: 'Post not found or unauthorized' }, { status: 404 });
+    }
+
+    if (title !== undefined) post.title = title.trim();
+    if (content !== undefined) post.content = content;
+    if (excerpt !== undefined) post.excerpt = excerpt?.trim();
+    if (coverImage !== undefined) post.coverImage = coverImage;
+    if (tags !== undefined) post.tags = tags;
+    if (published !== undefined) {
+      post.published = published;
+      if (published && !post.publishedAt) {
+        post.publishedAt = new Date();
+      }
+    }
+
+    await post.save();
+    await post.populate('author', 'name email avatar bio');
+
+    return NextResponse.json({
+      success: true,
+      message: published ? 'Post published successfully!' : 'Post updated successfully!',
+      post: {
+        id: post._id,
+        title: post.title,
+        content: post.content,
+        excerpt: post.excerpt,
+        coverImage: post.coverImage,
+        tags: post.tags,
+        slug: post.slug,
+        published: post.published,
+        publishedAt: post.publishedAt,
+        readTime: post.readTime,
+        wordCount: post.wordCount,
+        author: post.author,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+      },
+    });
+  } catch (error: any) {
+    console.error('Update post error:', error);
+
+    if (error.code === 11000) {
+      return NextResponse.json({ success: false, error: 'A post with this title already exists' }, { status: 400 });
+    }
+
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((err: any) => err.message);
+      return NextResponse.json({ success: false, error: errors.join(', ') }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: false, error: 'Failed to update post' }, { status: 500 });
+  }
+}
+
+// DELETE /api/posts - Delete post (requires auth)
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const postId = searchParams.get('postId');
+    const userId = searchParams.get('userId');
+
+    if (!userId || !postId) {
+      return NextResponse.json({ success: false, error: 'Unauthorized - userId and postId required' }, { status: 401 });
+    }
+
+    await connectDB();
+
+    const post = await Post.findOne({ _id: postId, author: userId });
+    if (!post) {
+      return NextResponse.json({ success: false, error: 'Post not found or unauthorized' }, { status: 404 });
+    }
+
+    await Post.deleteOne({ _id: postId, author: userId });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Post deleted successfully',
+    });
+  } catch (error: any) {
+    console.error('Delete post error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to delete post' }, { status: 500 });
   }
 }
