@@ -133,7 +133,7 @@ export default function NewPostPage() {
     }
   };
 
-  // ✅ UPDATED: Save draft using real API
+  // ✅ FIXED: Save draft using real API - KEEPS userId parameter
   const handleSaveDraft = async () => {
     if (!post.title.trim() && !post.content.trim()) {
       toast.error('Please add some content before saving');
@@ -154,7 +154,7 @@ export default function NewPostPage() {
         coverImage: post.coverImage,
         tags: post.tags,
         published: false // false for draft
-      }, userId);
+      }, userId); // ✅ KEEP userId parameter as per documentation
 
       if (response.success) {
         toast.success('Draft saved successfully!');
@@ -170,7 +170,7 @@ export default function NewPostPage() {
     }
   };
 
-  // ✅ UPDATED: Publish using real API
+  // ✅ FIXED: Publish using real API - KEEPS userId parameter
   const handlePublish = async () => {
     if (!post.title.trim() || !post.content.trim()) {
       toast.error('Please add a title and content before publishing');
@@ -191,11 +191,11 @@ export default function NewPostPage() {
         coverImage: post.coverImage,
         tags: post.tags,
         published: true // true for publish
-      }, userId);
+      }, userId); // ✅ KEEP userId parameter as per documentation
 
       if (response.success) {
         toast.success('Post published successfully!');
-        router.push(`/posts/${response.post.slug}`);
+        router.push('/explore');
       } else {
         throw new Error(response.error || 'Failed to publish post');
       }

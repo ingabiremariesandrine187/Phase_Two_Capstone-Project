@@ -82,7 +82,7 @@ const {
               Sign In
             </Link>
             <Link
-              href="/login/signup"
+              href="/signup"
               className="flex-1 text-center pb-3 text-gray-500 hover:text-gray-800 transition-colors"
             >
               Sign Up

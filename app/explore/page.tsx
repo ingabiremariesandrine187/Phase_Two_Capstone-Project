@@ -1,11 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { postsAPI } from '@/lib/api';
+import { postsAPI } from '../../lib/api';
 import PostCard from '../../components/posts/PostCard';
+import LikeButton from '@/components/social/LikeButton';
+import FollowButton from '@/components/social/FollowButton';
+import CommentSection from '@/components/social/CommentSection';
+import Link from 'next/link';
+import { Eye } from 'lucide-react';
 
 interface Post {
   id: string;
+  _id: string;
   title: string;
   excerpt?: string;
   coverImage?: string;
@@ -15,6 +21,7 @@ interface Post {
   publishedAt?: string;
   readTime: number;
   author: {
+    _id: string;
     name: string;
     avatar?: string;
     bio?: string;
@@ -155,11 +162,37 @@ export default function ExplorePage() {
         ) : posts.length > 0 ? (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                showActions={false}
-              />
+              <div key={post._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                {/* Use your existing PostCard OR use this enhanced version */}
+                <PostCard
+                  post={post}
+                  showActions={false}
+                />
+                
+                {/* Social Actions - ADDED TO EACH POST CARD */}
+                <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <LikeButton postId={post._id || post.id} slug={post.slug} />
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <FollowButton 
+                      targetUserId={post.author._id}
+                    />
+                    {/* ADDED: View Button */}
+                    <Link
+                      href={`/posts/${post.slug}`}
+                      className="flex items-center gap-2 bg-[#1a5f3f] text-white px-3 py-2 rounded-lg text-sm hover:bg-[#155035] transition-colors font-medium"
+                    >
+                      <Eye className="w-4 h-4" />
+                      View
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Comment Section - ADDED */}
+                <CommentSection postId={post._id || post.id} slug={post.slug} compact={true} />
+              </div>
             ))}
           </div>
         ) : (

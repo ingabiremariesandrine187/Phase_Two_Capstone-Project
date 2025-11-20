@@ -46,8 +46,8 @@ async function connectDB() {
         return mongoose;
       })
       .catch((error) => {
-        console.error('❌ MongoDB connection failed:', error.message);
-        console.log('💡 Tips:');
+        console.error(' MongoDB connection failed:', error.message);
+        console.log(' Tips:');
         console.log('   - Check your internet connection');
         console.log('   - Verify MongoDB Atlas cluster is running');
         console.log('   - Check if your IP is whitelisted in MongoDB Atlas');
@@ -60,7 +60,7 @@ async function connectDB() {
     cached.conn = await cached.promise;
     return cached.conn;
   } catch (error) {
-    console.error('❌ Failed to establish MongoDB connection');
+    console.error(' Failed to establish MongoDB connection');
     cached.promise = null;
     throw error;
   }

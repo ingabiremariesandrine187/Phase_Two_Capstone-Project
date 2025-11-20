@@ -1,17 +1,43 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import connectDB from '@/lib/mongodb';
-import { Post } from '@/models/Post';
+import connectDB from '../../../lib/mongodb';
+import { Post } from '../../../models/Post';
+import PostSocial from '../../posts/[slug]/PostSocial';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
+}
+
+// ADD THESE INTERFACES TO FIX THE TYPE ERRORS
+interface Author {
+  _id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  bio?: string;
+}
+
+interface PostData {
+  _id: string;
+  title: string;
+  excerpt?: string;
+  content?: string;
+  coverImage?: string;
+  tags: string[];
+  slug: string;
+  readTime: number;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
+  author: Author;
 }
 
 // Server-side function to fetch post data
-async function getPostData(slug: string) {
+async function getPostData(slug: string): Promise<PostData | null> {
   try {
     await connectDB();
     
@@ -23,18 +49,30 @@ async function getPostData(slug: string) {
       return null;
     }
 
-    // Convert MongoDB ObjectId and Date to strings for serialization
-    return {
-      ...post,
-      _id: post._id.toString(),
+    // Create a type-safe transformation
+    const transformedPost: PostData = {
+      _id: (post as any)._id.toString(),
+      title: post.title,
+      excerpt: post.excerpt,
+      content: post.content,
+      coverImage: post.coverImage,
+      tags: post.tags,
+      slug: post.slug,
+      readTime: post.readTime,
+      published: post.published,
+      createdAt: (post as any).createdAt.toISOString(),
+      updatedAt: (post as any).updatedAt.toISOString(),
+      publishedAt: (post as any).publishedAt ? (post as any).publishedAt.toISOString() : undefined,
       author: {
-        ...post.author,
-        _id: post.author._id.toString()
-      },
-      createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString(),
-      publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,
+        _id: ((post as any).author._id as any).toString(),
+        name: (post as any).author.name,
+        email: (post as any).author.email,
+        avatar: (post as any).author.avatar,
+        bio: (post as any).author.bio,
+      }
     };
+
+    return transformedPost;
   } catch (error) {
     console.error('Error fetching post:', error);
     return null;
@@ -42,7 +80,7 @@ async function getPostData(slug: string) {
 }
 
 export default async function PostPage({ params }: PageProps) {
-  const { slug } = params;
+  const { slug } = await params;
 
   const post = await getPostData(slug);
 
@@ -128,6 +166,9 @@ export default async function PostPage({ params }: PageProps) {
           />
         )}
 
+        {/* ADDED: Social Features (Comments, Likes, Follows) */}
+        <PostSocial postId={post._id} slug={post.slug} authorId={post.author._id} />
+
         {/* Author Bio */}
         <footer className="mt-12 pt-8 border-t border-gray-200">
           <div className="flex items-start space-x-6">
@@ -187,7 +228,8 @@ export async function generateStaticParams() {
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps) {
   try {
-    const post = await getPostData(params.slug);
+    const { slug } = await params;
+    const post = await getPostData(slug);
     
     if (post) {
       return {

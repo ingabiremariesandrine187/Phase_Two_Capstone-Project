@@ -3,6 +3,7 @@ import {useState,useCallback,useEffect} from 'react';
 import {useRouter} from 'next/navigation';
 import { Search, X, Clock, User, Calendar } from 'lucide-react';
 import Link from 'next/link';
+import { postsAPI } from '../lib/api';
 
 interface SearchBarProps {
   onClose?: () => void;
@@ -12,15 +13,16 @@ interface SearchBarProps {
 interface SearchResult {
   id: string;
   title: string;
-  excerpt: string;
+  excerpt?: string;
   author: {
     name: string;
     avatar?: string;
   };
   tags: string[];
-  publishedAt: string;
+  publishedAt?: string;
   readTime: number;
   slug: string;
+  createdAt: string;
 }
 
 export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
@@ -29,7 +31,7 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Mock search function - replace with actual API
+  // Real search function using your posts API
   const performSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
       setResults([]);
@@ -38,38 +40,25 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
 
     setIsLoading(true);
     try {
-      // Simulate API call - replace with actual search endpoint
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Mock data - replace with actual API response
-      const mockResults: SearchResult[] = [
-        {
-          id: '1',
-          title: 'Getting Started with Next.js',
-          excerpt: 'Learn how to build modern web applications with Next.js and React...',
-          author: { name: 'John Doe' },
-          tags: ['Next.js', 'React', 'Web Development'],
-          publishedAt: '2025-11-18',
-          readTime: 5,
-          slug: 'getting-started-with-nextjs'
-        },
-        {
-          id: '2',
-          title: 'Advanced TypeScript Patterns',
-          excerpt: 'Discover advanced TypeScript patterns for better type safety...',
-          author: { name: 'Jane Smith' },
-          tags: ['TypeScript', 'Programming'],
-          publishedAt: '2025-11-15',
-          readTime: 8,
-          slug: 'advanced-typescript-patterns'
-        }
-      ].filter(post => 
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
+      // Use your actual posts API
+      const response = await postsAPI.getPosts({
+        published: true,
+        limit: 10,
+      });
 
-      setResults(mockResults);
+      if (response.success) {
+        // Client-side filtering based on search query
+        const filteredResults = response.posts.filter((post: SearchResult) => 
+          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          post.author.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        
+        setResults(filteredResults);
+      } else {
+        setResults([]);
+      }
     } catch (error) {
       console.error('Search failed:', error);
       setResults([]);
@@ -95,7 +84,6 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
     }
   };
 
-  // ADD THIS MISSING FUNCTION
   const clearSearch = () => {
     setQuery('');
     setResults([]);
@@ -130,7 +118,7 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search articles, authors, tags..."
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" // ← ONLY THIS LINE CHANGED
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
             autoFocus
           />
           {isLoading && (
@@ -170,7 +158,7 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
                     <User size={14} />
                     <span>{post.author.name}</span>
                     <Calendar size={14} />
-                    <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
+                    <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString()}</span>
                     <Clock size={14} />
                     <span>{post.readTime} min read</span>
                   </div>
@@ -178,7 +166,7 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
                     {post.title}
                   </h4>
                   <p className="text-sm text-gray-600 line-clamp-2">
-                    {post.excerpt}
+                    {post.excerpt || 'No excerpt available'}
                   </p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {post.tags.slice(0, 3).map((tag) => (
@@ -195,7 +183,7 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
             </div>
           ) : (
             <div className="text-center text-gray-500 py-8">
-              No results found for query
+              No results found for "{query}"
             </div>
           )}
         </div>

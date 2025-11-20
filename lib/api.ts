@@ -12,8 +12,17 @@ async function apiRequest(endpoint: string, options: RequestInit = {}) {
     ...options,
   };
 
+  console.log('🔍 API Request to:', url); // ADDED DEBUG
+  console.log('🔍 API Request config:', { // ADDED DEBUG
+    method: config.method,
+    headers: config.headers,
+    hasBody: !!config.body
+  });
+
   try {
     const response = await fetch(url, config);
+    
+    console.log('🔍 API Response status:', response.status, response.statusText); // ADDED DEBUG
     
     if (!response.ok) {
       let errorData;
@@ -28,11 +37,13 @@ async function apiRequest(endpoint: string, options: RequestInit = {}) {
         }
       }
       
+      console.log(' API Error:', errorData); // ADDED DEBUG
       throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
 
     return response.json();
   } catch (error: any) {
+    console.error(' API Request failed:', error.message); // ADDED DEBUG
     throw new Error(`Network error: ${error.message}`);
   }
 }
@@ -157,6 +168,68 @@ export const postsAPI = {
   },
 };
 
+// Comments API - ADDED SECTION
+export const commentsAPI = {
+  async getComments(identifier: string): Promise<{ comments: any[] }> {
+    return apiRequest(`/api/posts/${identifier}/comments`);
+  },
+
+  async createComment(identifier: string, content: string, userId: string) {
+    return apiRequest(`/api/posts/${identifier}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content, userId }),
+    });
+  },
+
+  async deleteComment(commentId: string, userId: string) {
+    return apiRequest(`/api/comments/${commentId}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ userId }),
+    });
+  },
+};
+
+// Social API - ADDED SECTION
+export const socialAPI = {
+  async getLikes(identifier: string, userId?: string): Promise<{ likes: number; isLiked: boolean }> {
+    // identifier can be slug or postId
+    const url = userId 
+      ? `/api/posts/${identifier}/likes?userId=${userId}`
+      : `/api/posts/${identifier}/likes`;
+    return apiRequest(url);
+  },
+
+  async likePost(identifier: string, userId: string) {
+    // identifier can be slug or postId
+    return apiRequest(`/api/posts/${identifier}/likes`, {
+      method: 'POST',
+      body: JSON.stringify({ userId, action: 'like' }),
+    });
+  },
+
+  async unlikePost(identifier: string, userId: string) {
+    // identifier can be slug or postId
+    return apiRequest(`/api/posts/${identifier}/likes`, {
+      method: 'POST',
+      body: JSON.stringify({ userId, action: 'unlike' }),
+    });
+  },
+
+  async followUser(targetUserId: string, currentUserId: string) {
+    return apiRequest(`/api/users/${targetUserId}/follow`, {
+      method: 'POST',
+      body: JSON.stringify({ currentUserId }),
+    });
+  },
+
+  async unfollowUser(targetUserId: string, currentUserId: string) {
+    return apiRequest(`/api/users/${targetUserId}/unfollow`, {
+      method: 'POST',
+      body: JSON.stringify({ currentUserId }),
+    });
+  },
+};
+
 export const uploadAPI = {
   async uploadImage(file: File) {
     const formData = new FormData();
@@ -164,12 +237,16 @@ export const uploadAPI = {
 
     const url = '/api/upload';
 
+    console.log('🔍 Upload API Request to:', url); // ADDED DEBUG
+
     try {
       const response = await fetch(url, {
         method: 'POST',
         body: formData,
         credentials: 'include',
       });
+
+      console.log('🔍 Upload API Response status:', response.status, response.statusText); // ADDED DEBUG
 
       if (!response.ok) {
         let errorData;
@@ -183,6 +260,7 @@ export const uploadAPI = {
 
       return response.json();
     } catch (error: any) {
+      console.error('❌ Upload API Request failed:', error.message); // ADDED DEBUG
       throw new Error(`Upload network error: ${error.message}`);
     }
   },
