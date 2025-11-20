@@ -15,13 +15,142 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
 
+<<<<<<< HEAD
     if (!name.trim() || !email.trim() || password.length < 6) {
       toast.error('Please provide a name, valid email and a password (min 6 chars)');
       setLoading(false);
+=======
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    watch
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+  });
+
+  const bioValue = watch('bio');
+  const bioLength = bioValue?.length || 0;
+
+<<<<<<< HEAD
+  // Get userId from session
+  const userId = (session?.user as any)?._id;
+=======
+  // Get userId from session (NextAuth exposes as `id`)
+  const userId = (session?.user as any)?.id || (session?.user as any)?._id;
+>>>>>>> f07a4e5 (work on feedback)
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    if (session?.user && userId) {
+      setValue('name', session.user.name || '');
+      setValue('bio', (session.user as any).bio || '');
+      setValue('website', (session.user as any).website || '');
+      setValue('location', (session.user as any).location || '');
+      
+      // Fetch user posts
+      fetchUserPosts();
+    }
+  }, [session, setValue, userId]);
+
+  const fetchUserPosts = async () => {
+    try {
+      setPostsLoading(true);
+      setPostsError('');
+      
+      console.log('🔄 Fetching user posts...', { userId });
+      
+      if (!userId) {
+        console.error(' No user ID available');
+        setPostsError('User not authenticated');
+        return;
+      }
+
+      // Try different approaches to fetch posts
+      let publishedPosts: Post[] = [];
+      let draftPosts: Post[] = [];
+
+      try {
+        // Approach 1: Try with string parameters
+        console.log('📝 Trying to fetch posts with string parameters...');
+        const [publishedResponse, draftsResponse] = await Promise.all([
+          postsAPI.getUserPosts('true').catch(err => {
+            console.error('Error fetching published posts with string:', err);
+            return { posts: [] };
+          }),
+          postsAPI.getUserPosts('false').catch(err => {
+            console.error('Error fetching draft posts with string:', err);
+            return { posts: [] };
+          })
+        ]);
+
+        publishedPosts = publishedResponse?.posts || [];
+        draftPosts = draftsResponse?.posts || [];
+
+        // If no posts found, try alternative approach
+        if (publishedPosts.length === 0 && draftPosts.length === 0) {
+          console.log('🔄 No posts found with string params, trying alternative...');
+          
+          // Try fetching all posts and filter locally
+          const allPostsResponse = await postsAPI.getUserPosts().catch(err => {
+            console.error('Error fetching all posts:', err);
+            return { posts: [] };
+          });
+          
+          const allPosts = allPostsResponse?.posts || [];
+          publishedPosts = allPosts.filter((post: Post) => post.published);
+          draftPosts = allPosts.filter((post: Post) => !post.published);
+        }
+      } catch (alternativeError) {
+        console.error(' Alternative approach failed:', alternativeError);
+        
+        // Final fallback - empty arrays
+        publishedPosts = [];
+        draftPosts = [];
+      }
+
+      // Combine all posts for display (showing published first)
+      const allPosts = [...publishedPosts, ...draftPosts];
+      setUserPosts(allPosts);
+      
+      // Update stats with real data
+      setUserStats(prev => ({
+        ...prev,
+        postsPublished: publishedPosts.length,
+        postsDrafted: draftPosts.length,
+        totalLikes: publishedPosts.reduce((total: number, post: any) => total + (post.likesCount || 0), 0)
+      }));
+
+      console.log('✅ Posts loaded successfully:', {
+        published: publishedPosts.length,
+        drafts: draftPosts.length,
+        total: allPosts.length
+      });
+
+    } catch (err: any) {
+      console.error(' Failed to fetch user posts:', err);
+      const errorMessage = err?.response?.data?.message || err?.message || 'Failed to load posts. Please try again.';
+      setPostsError(errorMessage);
+    } finally {
+      setPostsLoading(false);
+    }
+  };
+
+  // DELETE functionality
+  const handleDelete = async (postId: string, postTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${postTitle}"? This action cannot be undone.`)) {
+>>>>>>> c793961 (working on comments post and get)
       return;
     }
 
     try {
+<<<<<<< HEAD
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,14 +163,100 @@ export default function SignupPage() {
         toast.error(data?.message || 'Signup failed');
         setLoading(false);
         return;
+=======
+      setPostsError('');
+      console.log(' Deleting post:', { postId, userId });
+      
+      // Check if userId is available
+      if (!userId) {
+        throw new Error('User ID not found. Please log in again.');
+>>>>>>> c793961 (working on comments post and get)
       }
 
+<<<<<<< HEAD
       toast.success('Account created — please sign in');
       // Redirect to login
       router.push('/login');
     } catch (err) {
       console.error('Signup failed', err);
       toast.error('Signup failed — try again');
+=======
+      console.log(' Post deleted successfully');
+      
+    } catch (err: any) {
+      console.error('❌ Failed to delete post:', err);
+      const errorMessage = err?.response?.data?.message || err?.message || 'Failed to delete post. Please try again.';
+      setPostsError(errorMessage);
+    }
+  };
+
+  // UPDATE publish status
+  const handlePublishToggle = async (postId: string, currentStatus: boolean) => {
+    try {
+      setPostsError('');
+      console.log('🔄 Toggling publish status:', { postId, currentStatus, userId });
+      
+      const newPublishStatus = !currentStatus;
+      
+      if (!userId) {
+        throw new Error('User ID not found. Please log in again.');
+      }
+      
+      // Update post with userId and postData
+      await postsAPI.updatePost(postId, userId, {
+        published: newPublishStatus
+      });
+      
+      // Update local state
+      setUserPosts(prevPosts => 
+        prevPosts.map(post => 
+          post._id === postId 
+            ? { ...post, published: newPublishStatus }
+            : post
+        )
+      );
+      
+      // Update stats
+      setUserStats(prev => ({
+        ...prev,
+        postsPublished: newPublishStatus ? prev.postsPublished + 1 : prev.postsPublished - 1,
+        postsDrafted: !newPublishStatus ? prev.postsDrafted + 1 : prev.postsDrafted - 1
+      }));
+
+      console.log(' Publish status updated:', newPublishStatus);
+      
+    } catch (err: any) {
+      console.error(' Failed to update post:', err);
+      const errorMessage = err?.response?.data?.message || err?.message || 'Failed to update post. Please try again.';
+      setPostsError(errorMessage);
+    }
+  };
+
+  const onSubmit = async (data: ProfileFormData) => {
+    setIsLoading(true);
+    setMessage('');
+
+    try {
+      // Simulate API call - replace with actual updateProfile API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Update session with new data
+      await update({
+        ...session,
+        user: {
+          ...session?.user,
+          name: data.name,
+          bio: data.bio,
+          website: data.website,
+          location: data.location,
+        }
+      });
+
+      setMessage('Profile updated successfully!');
+      setIsEditing(false);
+    } catch (error) {
+      setMessage('Error updating profile');
+>>>>>>> c793961 (working on comments post and get)
     } finally {
       setLoading(false);
     }
