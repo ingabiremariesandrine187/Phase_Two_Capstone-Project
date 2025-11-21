@@ -1,15 +1,16 @@
+// 
+
+
+
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../../../lib/mongodb';
 import { Post } from '../../../../../models/Post';
 
-interface Params {
-  params: {
-    slug: string;
-  };
-}
-
 // GET /api/posts/[slug] - Get single post
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
   try {
     await connectDB();
 

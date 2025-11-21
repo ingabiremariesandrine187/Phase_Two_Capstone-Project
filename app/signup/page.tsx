@@ -63,7 +63,7 @@ export default function SignupPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none text-black"
                 placeholder="Your name"
               />
             </div>
@@ -74,7 +74,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none text-black"
                 placeholder="you@example.com"
               />
             </div>
@@ -85,7 +85,7 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none text-black"
                 placeholder="At least 6 characters"
               />
             </div>

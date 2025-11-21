@@ -35,7 +35,6 @@ WYSIWYG editor (Jodit or Markdown)
 
 Styling tools: bold, italic, code, lists, headers
 
-Image upload with Cloudinary or mock storage
 
 Draft saving & preview mode
 
