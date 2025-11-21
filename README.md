@@ -78,9 +78,12 @@ WYSIWYG editor (Jodit or Markdown)
 Styling tools: bold, italic, code, lists, headers
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 Image upload with Cloudinary or mock storage
 >>>>>>> 5b89bcd (adding ReadMe)
+=======
+>>>>>>> 8681cc7 (working on taste)
 
 Draft saving & preview mode
 
