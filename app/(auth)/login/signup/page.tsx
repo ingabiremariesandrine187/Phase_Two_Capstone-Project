@@ -33,13 +33,8 @@ export default function SignupPage() {
   const bioValue = watch('bio');
   const bioLength = bioValue?.length || 0;
 
-<<<<<<< HEAD
-  // Get userId from session
-  const userId = (session?.user as any)?._id;
-=======
   // Get userId from session (NextAuth exposes as `id`)
   const userId = (session?.user as any)?.id || (session?.user as any)?._id;
->>>>>>> f07a4e5 (work on feedback)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
