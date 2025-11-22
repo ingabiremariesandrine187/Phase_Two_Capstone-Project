@@ -84,9 +84,6 @@ export default function ProfilePage() {
   const bioValue = watch('bio');
   const bioLength = bioValue?.length || 0;
 
-  // Get userId from session (NextAuth exposes as `id`)
-  const userId = (session?.user as any)?.id || (session?.user as any)?._id;
-
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');

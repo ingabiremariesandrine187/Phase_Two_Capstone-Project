@@ -150,45 +150,46 @@ export default function CommentsSection({ postId, slug }: CommentsSectionProps) 
             // Safely handle undefined author
             const author = comment.author || { _id: null, name: 'Unknown', image: null };
             return (
-            <div key={comment._id} className="flex gap-4 group">
-              <div className="flex-shrink-0">
-                {author.image ? (
-                  <img
-                    src={author.image}
-                    alt={author.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-[#1a5f3f] flex items-center justify-center text-white font-bold">
-                    <User className="w-5 h-5" />
-                  </div>
-                )}
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-start mb-1">
-                  <div>
-                    <h4 className="font-semibold text-gray-900">
-                      {author.name}
-                    </h4>
-                    <span className="text-sm text-gray-500">
-                      {formatDate(comment.createdAt)}
-                    </span>
-                  </div>
-                  {session?.user && author._id && session.user.id === author._id && (
-                    <button
-                      onClick={() => handleDeleteComment(comment._id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-600 transition-all"
-                      title="Delete comment"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+              <div key={comment._id} className="flex gap-4 group">
+                <div className="flex-shrink-0">
+                  {author.image ? (
+                    <img
+                      src={author.image}
+                      alt={author.name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-[#1a5f3f] flex items-center justify-center text-white font-bold">
+                      <User className="w-5 h-5" />
+                    </div>
                   )}
                 </div>
-                <p className="text-gray-700 whitespace-pre-wrap">
-                  {comment.content}
-                </p>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-1">
+                    <div>
+                      <h4 className="font-semibold text-gray-900">
+                        {author.name}
+                      </h4>
+                      <span className="text-sm text-gray-500">
+                        {formatDate(comment.createdAt)}
+                      </span>
+                    </div>
+
+                    {session?.user && author._id && session.user.id === author._id && (
+                      <button
+                        onClick={() => handleDeleteComment(comment._id)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-600 transition-all"
+                        title="Delete comment"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-gray-700 whitespace-pre-wrap">
+                    {comment.content}
+                  </p>
+                </div>
               </div>
-            </div>
             );
           })
         )}
@@ -196,3 +197,5 @@ export default function CommentsSection({ postId, slug }: CommentsSectionProps) 
     </div>
   );
 }
+
+

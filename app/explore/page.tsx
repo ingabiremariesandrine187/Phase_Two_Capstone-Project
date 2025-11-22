@@ -163,6 +163,7 @@ export default function ExplorePage() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
               <div key={post._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+
                 {/* Use your existing PostCard OR use this enhanced version */}
                 <PostCard
                   post={post}
@@ -229,3 +230,4 @@ export default function ExplorePage() {
     </div>
   );
 }
+
