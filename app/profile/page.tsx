@@ -167,7 +167,7 @@ export default function ProfilePage() {
 
     try {
       setPostsError('');
-      console.log('🗑️ Deleting post:', postId);
+      console.log(' Deleting post:', postId);
       
       // Check if userId is available
       if (!userId) {
@@ -194,7 +194,7 @@ export default function ProfilePage() {
         };
       });
 
-      console.log('✅ Post deleted successfully');
+      console.log(' Post deleted successfully');
       
     } catch (err: any) {
       console.error(' Failed to delete post:', err);
@@ -206,7 +206,7 @@ export default function ProfilePage() {
   const handlePublishToggle = async (postId: string, currentStatus: boolean) => {
     try {
       setPostsError('');
-      console.log('🔄 Toggling publish status:', { postId, currentStatus });
+      console.log(' Toggling publish status:', { postId, currentStatus });
       
       const newPublishStatus = !currentStatus;
       
@@ -231,7 +231,7 @@ export default function ProfilePage() {
         postsDrafted: !newPublishStatus ? prev.postsDrafted + 1 : prev.postsDrafted - 1
       }));
 
-      console.log('✅ Publish status updated:', newPublishStatus);
+      console.log(' Publish status updated:', newPublishStatus);
       
     } catch (err: any) {
       console.error('Failed to update post:', err);
@@ -298,6 +298,8 @@ export default function ProfilePage() {
   }
 
   const user = session?.user;
+const userId = (session?.user as any)?._id || (session?.user as any)?.id;
+
 
   // Safe access to extended user properties
   const userBio = (user as any)?.bio || "Passionate writer sharing thoughts and stories with the world. Love exploring new ideas and connecting with readers.";

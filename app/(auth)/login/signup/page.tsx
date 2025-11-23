@@ -15,11 +15,11 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
 
-<<<<<<< HEAD
+
     if (!name.trim() || !email.trim() || password.length < 6) {
       toast.error('Please provide a name, valid email and a password (min 6 chars)');
       setLoading(false);
-=======
+
   const {
     register,
     handleSubmit,
@@ -145,7 +145,7 @@ export default function SignupPage() {
     }
 
     try {
-<<<<<<< HEAD
+
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -158,24 +158,23 @@ export default function SignupPage() {
         toast.error(data?.message || 'Signup failed');
         setLoading(false);
         return;
-=======
+
       setPostsError('');
       console.log(' Deleting post:', { postId, userId });
       
       // Check if userId is available
       if (!userId) {
         throw new Error('User ID not found. Please log in again.');
->>>>>>> c793961 (working on comments post and get)
+ c793961 (working on comments post and get)
       }
 
-<<<<<<< HEAD
       toast.success('Account created — please sign in');
       // Redirect to login
       router.push('/login');
     } catch (err) {
       console.error('Signup failed', err);
       toast.error('Signup failed — try again');
-=======
+
       console.log(' Post deleted successfully');
       
     } catch (err: any) {
@@ -251,7 +250,7 @@ export default function SignupPage() {
       setIsEditing(false);
     } catch (error) {
       setMessage('Error updating profile');
->>>>>>> c793961 (working on comments post and get)
+ c793961 (working on comments post and get)
     } finally {
       setLoading(false);
     }
