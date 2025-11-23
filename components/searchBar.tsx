@@ -97,7 +97,7 @@ export default function SearchBar({ onClose, isOpen = true }: SearchBarProps) {
   if(!isOpen) return null;
 
   return(
-    <div className="fixed inset-0 bg-white z-50 p-4">
+    <div className="fixed inset-50 bg-white z-50 p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Search</h2>
