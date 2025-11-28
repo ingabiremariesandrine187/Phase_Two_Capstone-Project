@@ -6,12 +6,13 @@ import { User } from '@/models/users';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: any
 ) {
   try {
     await connectDB();
     
-    const { slug } = await params;
+    const p = await Promise.resolve(params);
+    const { slug } = p;
 
     // Populate nested comment user references so the client receives author details
     const post = await Post.findOne({ slug }).populate('comments.user', 'name avatar email');
@@ -59,12 +60,13 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: any
 ) {
   try {
     await connectDB();
     
-    const { slug } = await params;
+    const p = await Promise.resolve(params);
+    const { slug } = p;
     const body = await request.json();
     const { content, userId } = body;
 

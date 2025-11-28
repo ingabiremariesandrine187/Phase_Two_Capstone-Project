@@ -70,9 +70,9 @@ export default function Header() {
                     className="flex items-center space-x-2 p-2 text-gray-600 hover:text-[#1a5f3f] transition-colors group"
                     aria-label="Profile"
                   >
-                    {session.user?.image ? (
+                    {session.user?.avatar ? (
                       <Image
-                        src={session.user.image}
+                        src={session.user.avatar}
                         alt={session.user.name || 'User'}
                         width={32}
                         height={32}

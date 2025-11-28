@@ -5,12 +5,13 @@ import { Post } from '@/models/Post';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: any
 ) {
   try {
     await connectDB();
     
-    const { slug } = await params;
+    const p = await Promise.resolve(params);
+    const { slug } = p;
     const userId = request.nextUrl.searchParams.get('userId');
 
     const post = await Post.findOne({ slug });
@@ -41,12 +42,13 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: any
 ) {
   try {
     await connectDB();
     
-    const { slug } = await params;
+    const p = await Promise.resolve(params);
+    const { slug } = p;
     const { userId, action } = await request.json();
 
     if (!userId) {

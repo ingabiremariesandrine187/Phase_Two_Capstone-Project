@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { postsAPI } from '@/lib/api';
 import PostCard from '@/components/posts/PostCard';
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q');
   
@@ -127,5 +127,24 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-48 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }

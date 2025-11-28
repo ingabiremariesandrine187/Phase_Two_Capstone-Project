@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { postsAPI } from '@/lib/api';
-import PostCard from '../../components/posts/postCard';
+import PostCard from '../../components/posts/PostCard';
 
 interface PostsListProps {
   filters?: {

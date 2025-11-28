@@ -323,9 +323,9 @@ const userId = (session?.user as any)?._id || (session?.user as any)?.id;
                 {/* Avatar */}
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center shadow-lg">
-                    {user?.image ? (
+                    {user?.avatar ? (
                       <img
-                        src={user.image}
+                        src={user.avatar}
                         alt={user.name || 'User'}
                         className="w-full h-full rounded-full object-cover"
                       />

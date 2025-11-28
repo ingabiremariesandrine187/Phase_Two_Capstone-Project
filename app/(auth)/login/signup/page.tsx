@@ -1,3 +1,9 @@
+import { redirect } from 'next/navigation';
+
+export default function SignupPageRedirect() {
+  // This nested signup route redirects to the standalone /signup page
+  redirect('/signup');
+}
 // 'use client';
 
 // import { useState } from 'react';

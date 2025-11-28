@@ -88,9 +88,9 @@ export default function CommentsSection({ postId, slug }: CommentsSectionProps) 
         <form onSubmit={handleSubmitComment} className="mb-8">
           <div className="flex gap-4">
             <div className="flex-shrink-0">
-              {session.user.image ? (
+              {session.user.avatar ? (
                 <img
-                  src={session.user.image}
+                  src={session.user.avatar}
                   alt={session.user.name || 'User'}
                   className="w-10 h-10 rounded-full object-cover"
                 />

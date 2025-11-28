@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import connectDB from '@/lib/mongodb';
 import { Post } from '@/models/Post';
 import { User } from '../../../../models/users';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
 // GET /api/posts - Get posts (with filtering)
 export async function GET(request: NextRequest) {
@@ -56,14 +56,14 @@ export async function GET(request: NextRequest) {
 // POST /api/posts - Create new post
 export async function POST(request: NextRequest) {
   try {
-    // const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions);
     
-    // if (!session?.user?.email) {
-    //   return NextResponse.json(
-    //     { success: false, error: 'Unauthorized' },
-    //     { status: 401 }
-    //   );
-    // }
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
 
     await connectDB();
 

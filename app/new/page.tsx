@@ -60,10 +60,6 @@ export default function NewPostPage() {
       insertImageAsBase64URI: true,
       imagesExtensions: ['jpg', 'png', 'jpeg', 'gif'],
     },
-    image: {
-      edit: false,
-      resize: false,
-    },
     buttons: [
       'bold', 'italic', 'underline', 'strikethrough', '|',
       'ul', 'ol', '|',

@@ -9,12 +9,14 @@ import { Post } from '../../../../../models/Post';
 // GET /api/posts/[slug] - Get single post
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: any
 ) {
   try {
     await connectDB();
 
-    const post = await Post.findOne({ slug: params.slug })
+    const p = await Promise.resolve(params);
+    const { slug } = p;
+    const post = await Post.findOne({ slug: slug })
       .populate('author', 'name email avatar bio')
       .lean();
 
