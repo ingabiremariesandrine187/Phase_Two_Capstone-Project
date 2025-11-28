@@ -123,7 +123,7 @@ const {
                 autoComplete="email"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a5f3f] focus:border-[#1a5f3f] outline-none text-gray-700"
                 placeholder="you@example.com"
-                suppressHydrationWarning
+                suppressHydrationWarning 
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>

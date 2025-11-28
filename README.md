@@ -1,12 +1,12 @@
-<<<<<<< HEAD
+
 Overview
 
-<<<<<<< HEAD
+
 
  A production-ready publishing platform inspired by Medium, built with **Next.js 16**, **React 19**, **TypeScript**, and **MongoDB**. Demonstrates advanced frontend engineering, authentication, rich content creation, social interactions, and deployment best practices.
 
 
----
+
 
 ##  Overview
 
@@ -58,7 +58,7 @@ This project is a **Phase 2 Capstone** demonstrating full-stack frontend enginee
 
 ##  Key Features
 
-<<<<<<< HEAD
+
 Features
  Authentication & Profiles
 >>>>>>> 5b89bcd (adding ReadMe)
@@ -77,9 +77,8 @@ WYSIWYG editor (Jodit or Markdown)
 
 Styling tools: bold, italic, code, lists, headers
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
+
+
 Image upload with Cloudinary or mock storage
 >>>>>>> 5b89bcd (adding ReadMe)
 =======
@@ -123,11 +122,11 @@ Global state with Context API
 
 Error + loading UI states
 
-🛠 Developer Experience
+ Developer Experience
 
 TypeScript end-to-end
 
-ESLint + Prettier + Husky
+
 
 Jest + React Testing Library
 

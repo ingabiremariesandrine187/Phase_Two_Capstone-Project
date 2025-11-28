@@ -260,7 +260,7 @@ export const uploadAPI = {
 
       return response.json();
     } catch (error: any) {
-      console.error('❌ Upload API Request failed:', error.message); // ADDED DEBUG
+      console.error(' Upload API Request failed:', error.message); // ADDED DEBUG
       throw new Error(`Upload network error: ${error.message}`);
     }
   },

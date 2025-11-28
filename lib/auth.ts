@@ -60,7 +60,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      // ✅ FIX: Include all user data in JWT token
+      //  FIX: Include all user data in JWT token
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -70,7 +70,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      // ✅ FIX: Properly populate session with user data
+      // FIX: Properly populate session with user data
       if (token) {
         session.user = {
           id: token.id as string,
@@ -82,7 +82,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  // ✅ CRITICAL: Add secret for JWT encryption
+  //  CRITICAL: Add secret for JWT encryption
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
 };
