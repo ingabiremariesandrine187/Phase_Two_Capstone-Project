@@ -87,6 +87,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate slug from title
+    const generateSlug = (title: string) => {
+      return title
+        .toLowerCase()
+        .replace(/[^a-z0-9 -]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 100);
+    };
+
+    const baseSlug = generateSlug(title.trim());
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Ensure unique slug
+    while (await Post.findOne({ slug })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     // Create post
     const post = await Post.create({
       title: title.trim(),
@@ -96,6 +116,7 @@ export async function POST(request: NextRequest) {
       tags: tags || [],
       author: user._id,
       published: published || false,
+      slug,
     });
 
     // Populate author info for response

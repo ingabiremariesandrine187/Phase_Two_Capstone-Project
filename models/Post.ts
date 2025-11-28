@@ -103,7 +103,7 @@ const postSchema = new Schema<IPost>(
 postSchema.pre('save', function (next) {
   const doc = this as any;
   
-  if (doc.isModified('title') && !doc.slug) {
+  if (doc.isModified('title') || !doc.slug) {
     doc.slug = doc.title
       .toLowerCase()
       .replace(/[^a-z0-9 -]/g, '')
