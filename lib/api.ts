@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -103,7 +103,7 @@ export const postsAPI = {
     tags: string[];
     published: boolean;
   }, userId: string) {
-    return apiRequest('/api/posts', { 
+    return apiRequest('/api/auth/posts', { 
       method: 'POST',
       body: JSON.stringify({ ...postData, userId }),
     });
@@ -124,7 +124,7 @@ export const postsAPI = {
     if (options?.author) params.append('author', options.author);
     if (options?.published !== undefined) params.append('published', options.published.toString());
 
-    return apiRequest(`/api/posts?${params.toString()}`);
+    return apiRequest(`/api/auth/posts?${params.toString()}`);
   },
 
   // Get single post by slug
@@ -145,7 +145,7 @@ export const postsAPI = {
       published?: boolean;
     }
   ) {
-    return apiRequest('/api/posts', {
+    return apiRequest('/api/auth/posts', {
       method: 'PUT',
       body: JSON.stringify({ ...postData, postId, userId }),
     });
@@ -153,7 +153,7 @@ export const postsAPI = {
 
   // Delete post
   async deletePost(postId: string, userId: string) {
-    return apiRequest(`/api/posts?postId=${postId}&userId=${userId}`, {
+    return apiRequest(`/api/auth/posts?postId=${postId}&userId=${userId}`, {
       method: 'DELETE',
     });
   },
@@ -164,7 +164,7 @@ export const postsAPI = {
     if (published !== undefined) params.append('published', published.toString());
     if (userId) params.append('author', userId);
     
-    return apiRequest(`/api/posts?${params.toString()}`);
+    return apiRequest(`/api/auth/posts/user?${params.toString()}`);
   },
 };
 
@@ -235,7 +235,7 @@ export const uploadAPI = {
     const formData = new FormData();
     formData.append('image', file);
 
-    const url = '/api/upload';
+    const url = '/api/auth/upload';
 
     console.log('🔍 Upload API Request to:', url); // ADDED DEBUG
 
